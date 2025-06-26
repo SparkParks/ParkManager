@@ -15,13 +15,75 @@ import org.bukkit.command.CommandSender;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * The {@code LeaderboardCommand} class is responsible for managing and displaying leaderboard rankings
+ * related to ride counters. This command allows developers to interact with ride leaderboards and
+ * retrieve statistical data asynchronously. It includes functionalities such as updating leaderboard
+ * data and retrieving top-ranked users for specific rides.
+ *
+ * <p><strong><b>Usage:</b></strong></p>
+ * <p>The command provides handlers for different arguments:</p>
+ * <ul>
+ *   <li><code>/leaderboard [update]</code>: Updates the ride leaderboards asynchronously.</li>
+ *   <li><code>/leaderboard [top #] [ride]</code>: Retrieves the leaderboard data for a given ride
+ *   with the specified number of top entries.</li>
+ * </ul>
+ *
+ * <p><strong><b>Error Handling:</b></strong></p>
+ * <ul>
+ *   <li>If no arguments are provided or if the sender is an instance of {@link BlockCommandSender},
+ *       the command shows the valid usage options.</li>
+ *   <li>If the argument <code>#</code> is not a valid number, an error message is displayed.</li>
+ *   <li>If an unsupported argument structure is provided, the command prompts for the expected format.</li>
+ * </ul>
+ *
+ * <p><strong><b>Key Functionalities:</b></strong></p>
+ * <ul>
+ *   <li>Asynchronous tasks are used to update leaderboard data or fetch leaderboard details without
+ *       blocking the main thread.</li>
+ *   <li>Formatting of leaderboard entries is handled by the {@code LeaderboardManager} utility class.</li>
+ * </ul>
+ *
+ * <p>This command is intended for use by developers with sufficient rank, as specified in the
+ * {@link Rank#DEVELOPER} annotation.
+ */
 @CommandMeta(description = "Get top ride leaderboards", rank = Rank.DEVELOPER)
 public class LeaderboardCommand extends CoreCommand {
 
+    /**
+     * Constructs an instance of the {@code LeaderboardCommand}.
+     * <p>
+     * This command is typically used to retrieve and display the leaderboard,
+     * showing rankings or statistics related to players or participants.
+     * </p>
+     * <p>
+     * The command keyword for triggering this command is "leaderboard".
+     * </p>
+     * <p>
+     * This constructor initializes the command and sets its associated keyword.
+     * </p>
+     */
     public LeaderboardCommand() {
         super("leaderboard");
     }
 
+    /**
+     * Handles unspecific leaderboard command inputs provided by the command sender.
+     * <p>
+     * This method processes various leaderboard-related commands such as updating the leaderboard or
+     * fetching and displaying the top rankings for a specified ride. Invalid commands or insufficient
+     * arguments are appropriately handled by providing usage instructions or error responses.
+     * </p>
+     *
+     * @param sender The sender of the command, which could be a player, console, or command block.
+     *               If the sender is a BlockCommandSender, the command will return usage instructions.
+     * @param args   The arguments provided with the command. Valid inputs can include:
+     *               <ul>
+     *                  <li>An "update" command to refresh the ride counter leaderboards.</li>
+     *                  <li>Arguments specifying the top number of players and the ride name to display leaderboards.</li>
+     *               </ul>
+     * @throws CommandException If an error occurs while processing the command.
+     */
     @Override
     protected void handleCommandUnspecific(CommandSender sender, String[] args) throws CommandException {
         if (args.length == 0 || sender instanceof BlockCommandSender) {

@@ -14,13 +14,86 @@ import org.bukkit.command.BlockCommandSender;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+/**
+ * The {@code SetSignCommand} class provides functionality to modify the content of a sign
+ * in a Minecraft world. This command allows users to set up to four lines of text on a
+ * specific sign by providing coordinates and the desired text content.
+ *
+ * <p><strong>Command Syntax:</strong></p>
+ * <p>{@code /setsign [x] [y] [z] line 1;text for line 2;text for line 3;text for line 4}</p>
+ *
+ * <h2>Command Features:</h2>
+ * <ul>
+ *   <li>The command requires at least four arguments: x, y, z coordinates, and text for the first line. The remaining lines are optional.</li>
+ *   <li>The command supports relative coordinates using the "~" notation for x, y, and z when executed by a player or a command block.</li>
+ *   <li>Any text lines omitted will remain unchanged or empty. For example, using double semicolons {@code ;;} will skip a line.</li>
+ *   <li>Supports alternate color codes with "&" to add color to the sign's text.</li>
+ * </ul>
+ *
+ * <h2>Execution Limitations:</h2>
+ * <ul>
+ *   <li>This command can only be executed by players or command blocks. Other entities cannot invoke it.</li>
+ *   <li>The specified coordinates must point to a valid sign block; otherwise, an error message will be returned.</li>
+ * </ul>
+ *
+ * <h2>Error Handling:</h2>
+ * <ul>
+ *   <li>Ensures that x, y, and z coordinates are integers and outputs an error if invalid values are provided.</li>
+ *   <li>Validates the existence of a sign at the given coordinates before attempting modification.</li>
+ *   <li>Handles cases where text input syntax is incorrect or inconsistent.</li>
+ * </ul>
+ *
+ * <h2>Format Modifications:</h2>
+ * <ul>
+ *   <li>Lines exceeding the sign limit (4 lines) are truncated.</li>
+ *   <li>Empty strings between semicolons (e.g., {@code line 1;;line 3}) will insert blank lines.</li>
+ * </ul>
+ *
+ * <h2>Output Messages:</h2>
+ * <ul>
+ *   <li>Feedback is provided to the sender for each line updated, confirming the modifications.</li>
+ *   <li>Displays the number of lines updated and the coordinates of the modified sign.</li>
+ * </ul>
+ */
 @CommandMeta(description = "Set the lines of a sign", rank = Rank.CM)
 public class SetSignCommand extends CoreCommand {
 
+    /**
+     * Constructs a new instance of the {@code SetSignCommand}.
+     * <p>
+     * This command initializes with the name "setsign", which can be used
+     * for execution and mapping within the application.
+     * <p>
+     * Intended for use within a command-handling framework, this constructor
+     * sets up the base name of the command. The command itself is expected
+     * to perform actions related to setting or modifying signs in the
+     * application environment.
+     * <p>
+     * Usage of this method typically involves the framework automatically
+     * invoking this constructor when the command is initialized or registered.
+     */
     public SetSignCommand() {
         super("setsign");
     }
 
+    /**
+     * Handles the "setsign" command, allowing the sender to update the lines of a sign at a specified location.
+     * <p>
+     * The command requires at least the x, y, and z coordinates followed by the text to set on the sign.
+     * Partial lines are supported, and blank lines can be defined using two consecutive semicolons (";;").
+     * The sender must be either a {@link Player} or {@link BlockCommandSender}.
+     * </p>
+     *
+     * @param sender the entity or block executing the command. Must be a {@link Player} or {@link BlockCommandSender}.
+     * @param args   an array of command arguments. Expected format:
+     *               <ul>
+     *                  <li><b>args[0]</b>: The x-coordinate of the target sign (relative if prefixed with "~").</li>
+     *                  <li><b>args[1]</b>: The y-coordinate of the target sign (relative if prefixed with "~").</li>
+     *                  <li><b>args[2]</b>: The z-coordinate of the target sign (relative if prefixed with "~").</li>
+     *                  <li><b>args[3...n]</b>: Text to set on the sign, separated by semicolons (";").</li>
+     *               </ul>
+     * @throws CommandException if an internal command-related error occurs.
+     */
     @Override
     protected void handleCommandUnspecific(CommandSender sender, String[] args) throws CommandException {
         if (args.length < 4) {

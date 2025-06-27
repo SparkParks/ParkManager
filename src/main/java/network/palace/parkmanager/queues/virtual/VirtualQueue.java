@@ -125,6 +125,25 @@ public class VirtualQueue {
         }
     }
 
+    /**
+     * Removes a player from the virtual queue. If the current server is not the host for the queue,
+     * the action will be delegated to the appropriate host via a network message.
+     * <p>
+     * If the server is the host, the method will:
+     * <ul>
+     *     <li>Attempt to remove the player from the queue.</li>
+     *     <li>Remove the player from the "virtualQueueHoldingArea" registry if applicable.</li>
+     *     <li>Teleport the player to a designated location if successfully removed from the queue.</li>
+     * </ul>
+     * If the server is not the host, a message is sent to the host to handle the removal and no further
+     * action is taken.
+     * </p>
+     *
+     * @param player the {@link CPlayer} object representing the player attempting to leave the queue.
+     *               This includes their UUID and related data required for processing the action.
+     * @throws Exception if an error occurs during the removal process, such as issues in teleports
+     *                   or network communication.
+     */
     public void leaveQueue(CPlayer player) throws Exception {
         if (!isHost()) {
             Core.getMessageHandler().sendMessage(new PlayerQueuePacket(id, player.getUniqueId(), false), Core.getMessageHandler().permanentClients.get("all_parks"));
@@ -180,6 +199,17 @@ public class VirtualQueue {
                     "You are in position #" + pos + " in the virtual queue " + name + "!");
     }
 
+    /**
+     * Retrieves the position of a user in the virtual queue based on their unique identifier.
+     * If the user is not found in the queue, their position will be calculated as zero.
+     *
+     * <p>The position is determined by locating the UUID in the queue and adding one
+     * to its index (as queue positions are 1-based).</p>
+     *
+     * @param uuid the unique identifier of the user whose position is to be retrieved.
+     *             It is expected to match an existing entry in the queue.
+     * @return the 1-based position of the user in the queue, or 0 if the user is not in the queue.
+     */
     public int getPosition(UUID uuid) {
         return queue.indexOf(uuid) + 1;
     }
@@ -218,6 +248,26 @@ public class VirtualQueue {
         return Core.getInstanceName().equals(server);
     }
 
+    /**
+     * Retrieves an {@code ItemStack} configured for the specified player in the virtual queue.
+     * The item's appearance and lore are dynamically updated based on the player's position
+     * in the queue and the queue's current state.
+     *
+     * <p>The following details will be included in the item's lore:</p>
+     * <ul>
+     *     <li>Position of the player in the queue (if applicable).</li>
+     *     <li>Queue status, indicating whether it is open or closed.</li>
+     *     <li>Number of players currently in the queue.</li>
+     *     <li>The server hosting the queue.</li>
+     *     <li>Interactive instructions for joining or leaving the queue.</li>
+     * </ul>
+     *
+     * @param player the {@link CPlayer} for whom the item is generated.
+     *               This parameter is used to determine the player's position
+     *               in the queue and customize the item's lore accordingly.
+     * @return an {@link ItemStack} representing the player's status in the queue,
+     *         including its visual representation, lore, and interactive instructions.
+     */
     public ItemStack getItem(CPlayer player) {
         int pos = getPosition(player.getUniqueId());
         List<String> lore = new ArrayList<>(Arrays.asList(

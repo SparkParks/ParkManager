@@ -293,6 +293,20 @@ public class VirtualQueueManager {
         return ids[new Random().nextInt(ids.length - 1)];
     }
 
+    /**
+     * Adds a menu to the open menus map for the given player and sets up a callback to remove it
+     * when the menu is closed.
+     *
+     * <p>This method is responsible for managing the association between a {@link CPlayer} and a
+     * {@link Menu} in the open menus data structure. It ensures that whenever a menu is opened, a
+     * reference to it is tracked and subsequently removed when the menu is closed. The removal of
+     * the open menu is handled by a callback triggered on menu close.
+     *
+     * @param player the player opening the menu. This parameter uniquely identifies the player
+     *               whose menu is being tracked.
+     * @param menu   the menu being opened by the player. This parameter contains the menu instance
+     *               to associate with the given player for tracking.
+     */
     public void addToOpenMenus(CPlayer player, Menu menu) {
         openMenus.put(player.getUniqueId(), menu);
         menu.setOnClose(() -> removeFromOpenMenus(player));

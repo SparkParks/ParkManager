@@ -16,8 +16,55 @@ import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.inventory.ItemStack;
 
+/**
+ * The <code>PlayerInteract</code> class implements the <code>Listener</code> interface to handle player interaction events in a Minecraft server.
+ * <p>
+ * This listener processes various actions performed by a player during interaction events. Specifically, it manages:
+ * <ul>
+ *   <li>Right-clicking signs to check for specific functionalities associated with the sign.</li>
+ *   <li>Blocking access to certain interactable blocks for players without appropriate permissions or ranks.</li>
+ *   <li>Handling inventory item interactions based on the player's held item slot.</li>
+ * </ul>
+ * </p>
+ *
+ * <p>The class is structured as follows:</p>
+ * <ul>
+ *   <li><b>onPlayerInteract:</b> The primary event handler that processes {@link PlayerInteractEvent}. It manages:
+ *     <ul>
+ *       <li>Interaction with signs to trigger associated functionality defined in <code>ServerSign</code>.</li>
+ *       <li>Canceling interactions with specific blocks (e.g., workbench, furnace) if the player does not meet rank requirements.</li>
+ *       <li>Handling specific item interaction slots for functionalities such as opening menus or achievements.</li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ *
+ * <p>Conditions are checked to ensure interactions only occur with valid players and blocks/items are processed according to the player's build mode, rank, and inventory state.</
+ * p>
+ *
+ * <p><b>Event Handling:</b></p>
+ * <ul>
+ *   <li>Right-clicking on blocks is processed for sign interactions to trigger custom behaviors based on the sign's header.</li>
+ *   <li>For players with insufficient rank, interactions with specified block types are canceled.</li>
+ *   <li>Item interactions in designated inventory slots trigger specific events, such as opening backpacks, accessing watch menus, or handling autograph-related actions.</li>
+ * </ul>
+ *
+ * <p>Custom functionality integration is dynamically handled using methods from external manager classes like <code>ParkManager</code>, <code>Core</code>, and <code>Rank</code>.</
+ * p>
+ */
 public class PlayerInteract implements Listener {
 
+    /**
+     * Handles the interaction event when a player interacts with blocks or items in the game world.
+     * <p>
+     * This method evaluates player interactions with blocks such as signs or other restricted blocks,
+     * manages item use based on the player's held slot hand, and enforces rank-dependent restrictions.
+     * It also integrates with various game mechanics like menus, achievements, and custom interactions
+     * provided by supporting managers.
+     * </p>
+     *
+     * @param event The {@link PlayerInteractEvent} that encapsulates details of the player's interaction,
+     *              including clicked block or item, interaction type, and the player performing the action.
+     */
     @EventHandler
     public void onPlayerInteract(PlayerInteractEvent event) {
         CPlayer player = Core.getPlayerManager().getPlayer(event.getPlayer());

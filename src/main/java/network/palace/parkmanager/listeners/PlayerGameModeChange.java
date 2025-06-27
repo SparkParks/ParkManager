@@ -36,6 +36,39 @@ import org.bukkit.event.player.PlayerGameModeChangeEvent;
  */
 public class PlayerGameModeChange implements Listener {
 
+    /**
+     * Handles the {@link PlayerGameModeChangeEvent} to manage and restrict game mode changes
+     * for players based on their role, rank, and build status.
+     *
+     * <p>The event enforces the following rules:</p>
+     * <ul>
+     *   <li>If the player is in build mode:
+     *     <ul>
+     *       <li>Only <code>CREATIVE</code> and <code>SPECTATOR</code> game modes are allowed.</li>
+     *       <li>All other game modes are cancelled.</li>
+     *     </ul>
+     *   </li>
+     *   <li>If the player is not in build mode:
+     *     <ul>
+     *       <li>Players with a rank ID greater than or equal to <code>TRAINEEBUILD</code>:
+     *         <ul>
+     *           <li>Only <code>SURVIVAL</code> game mode is allowed.</li>
+     *           <li>All other game modes are cancelled.</li>
+     *         </ul>
+     *       </li>
+     *       <li>Players with a rank ID lower than <code>TRAINEEBUILD</code>:
+     *         <ul>
+     *           <li>Only <code>ADVENTURE</code> game mode is allowed.</li>
+     *           <li>All other game modes are cancelled.</li>
+     *         </ul>
+     *       </li>
+     *     </ul>
+     *   </li>
+     * </ul>
+     *
+     * @param event the {@link PlayerGameModeChangeEvent} that provides information about
+     *              the player's game mode change, including the new game mode and the player object.
+     */
     @EventHandler
     public void onGameModeChange(PlayerGameModeChangeEvent event) {
         CPlayer player = Core.getPlayerManager().getPlayer(event.getPlayer());

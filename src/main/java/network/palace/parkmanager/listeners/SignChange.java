@@ -30,8 +30,103 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+/**
+ * The {@code SignChange} class is responsible for registering and handling
+ * various types of signs with specific functionalities relevant to a themed
+ * park's operational mechanics. These functionalities encompass disposal,
+ * leaderboards, server switching, warps, queue management, fast-pass systems,
+ * and wait times.
+ *
+ * <p>This class implements the {@link Listener} interface to handle events
+ * related to signs in the park, providing seamless interactivity for players
+ * through various commands, actions, and visual updates on the signs.
+ *
+ * <p>Key Responsibilities:
+ * <ul>
+ *   <li>Registers custom signs with predefined types.</li>
+ *   <li>Defines behaviors for each type of sign when they are changed,
+ *       interacted with, or broken.</li>
+ *   <li>Handles player interactions with signs, including actions like
+ *       joining a queue, viewing wait times, managing leaderboards, using
+ *       warps, and switching servers.</li>
+ * </ul>
+ *
+ * <p>Supported Sign Types:
+ * <ul>
+ *   <li><b>[Disposal]</b>: Allows players to open a disposal inventory.</li>
+ *   <li><b>[Leaderboard]</b>: Displays and manages ride leaderboard data.</li>
+ *   <li><b>[Server]</b>: Allows players to switch to another server.</li>
+ *   <li><b>[Warp]</b>: Provides functionality to teleport to predefined warp
+ *       locations.</li>
+ *   <li><b>[Queue]</b>: Manages interaction with queues, including joining,
+ *       leaving, and displaying wait times.</li>
+ *   <li><b>[FastPass]</b>: Provides functionality for fast-pass queue
+ *       interaction and management.</li>
+ *   <li><b>[Wait Times]</b>: Displays the estimated wait time for a specific
+ *       queue in a park.</li>
+ * </ul>
+ *
+ * <p>Technical Details:
+ * <ul>
+ *   <li>Each sign type is registered through the {@link ServerSign#registerSign}
+ *       method with an associated {@link ServerSign.SignHandler} implementation
+ *       for defining specific behaviors.</li>
+ *   <li>Handles events such as {@link SignChangeEvent}, {@link PlayerInteractEvent},
+ *       and {@link BlockBreakEvent} to manage the lifecycle and interaction of
+ *       signs.</li>
+ *   <li>Utilizes various park management utilities like {@link ParkManager},
+ *       {@link Queue}, {@link QueueSign}, and {@link LeaderboardManager}
+ *       for executing park-specific operations.</li>
+ * </ul>
+ *
+ * <p>Usage Notes:
+ * <ul>
+ *   <li>Events triggered on these signs require proper player permissions and
+ *       context to perform actions.</li>
+ *   <li>All relevant data is dynamically fetched and processed asynchronously
+ *       where applicable, such as leaderboard data retrieval.</li>
+ *   <li>Some actions, like breaking specific sign types, require the player
+ *       to hold a specific tool (e.g., a golden axe).</li>
+ * </ul>
+ */
 public class SignChange implements Listener {
 
+    /**
+     * The <code>SignChange</code> class is a utility for handling interactions with custom server signs.
+     * This includes registering multiple types of signs with distinct handlers for sign creation, interaction,
+     * and destruction. Each sign type performs specific actions that enhance player interactions within the park system.
+     *
+     * <p>This class is an extension of a server-side functionality, bundling customizable features, such as
+     * opening inventories, displaying leaderboards, teleporting to warps, queue management, and related actions.
+     *
+     * <p>Key responsibilities of <code>SignChange</code> include:
+     * <ul>
+     *   <li>Registering various custom sign types using the <code>ServerSign.registerSign</code> method.</li>
+     *   <li>Defining event-handler logic for each sign type:
+     *   <ul>
+     *     <li><b>onSignChange:</b> Handles initialization and visual modifications when a sign is created by a player.</li>
+     *     <li><b>onInteract:</b> Defines the player interaction behavior when clicking on the sign, often triggering
+     *         server logic or game features.</li>
+     *     <li><b>onBreak:</b> Handles cleanup or restrictions when signs are destroyed, ensuring proper state management.</li>
+     *   </ul>
+     *   </li>
+     *   <li>Seamlessly integrating with core park management systems to provide enhanced gameplay mechanics.</li>
+     * </ul>
+     *
+     * <p>Sign types implemented in <code>SignChange</code>:
+     * <ul>
+     *   <li><b>[Disposal]:</b> Opens a disposable inventory for quick item cleanup.</li>
+     *   <li><b>[Leaderboard]:</b> Displays and interacts with ride leaderboards, showcasing performance and scores.</li>
+     *   <li><b>[Server]:</b> Allows players to click and join different servers within the network.</li>
+     *   <li><b>[Warp]:</b> Provides teleportation functionality to predefined locations in the park system.</li>
+     *   <li><b>[Queue]:</b> Handles park queue interactions, such as joining, leaving, and managing lines.</li>
+     *   <li><b>[FastPass]:</b> Manages premium queue interactions for expedited access to park features.</li>
+     *   <li><b>[Wait Times]:</b> Displays estimated wait times for queues within the park.</li>
+     * </ul>
+     *
+     * <p>By using the <code>SignChange</code> class, the park system enhances player engagement and
+     * interactivity, adding value through a range of custom server-side capabilities.
+     */
     public SignChange() {
         ServerSign.registerSign("[Disposal]", new ServerSign.SignHandler() {
             @Override
@@ -299,6 +394,21 @@ public class SignChange implements Listener {
         });
     }
 
+    /**
+     * Handles the event triggered when a sign's text is changed by a player.
+     * This method processes the text on the sign, applying color codes and checking
+     * for a specific header to determine further custom event handling.
+     *
+     * <p>Features include:</p>
+     * <ul>
+     *     <li>Applying color translations using alternate color codes.</li>
+     *     <li>Validating the first line of the sign against predefined headers.</li>
+     *     <li>Triggering additional handling through a related {@code ServerSign.SignEntry} if applicable.</li>
+     * </ul>
+     *
+     * @param event The {@link SignChangeEvent} triggered when a player changes the text on a sign.
+     *              Contains information about the player, the sign, and its contents.
+     */
     @EventHandler
     public void onSignChange(SignChangeEvent event) {
         CPlayer player = Core.getPlayerManager().getPlayer(event.getPlayer());

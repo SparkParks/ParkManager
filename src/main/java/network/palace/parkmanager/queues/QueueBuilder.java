@@ -16,23 +16,153 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * The {@code QueueBuilder} class is responsible for managing and constructing queue processes
+ * for a specific park type. It extends the {@code Queue} class to provide specialized
+ * functionality for handling queues in the context of the park management system.
+ *
+ * <p>The class provides methods to get the type of queue, handle spawn events for players,
+ * progress the queue steps for a specific player, and manage internal plugin-based queue logic.
+ * It incorporates the following key features:</p>
+ *
+ * <ul>
+ *   <li>Initialization of the queue builder with a specific park type.</li>
+ *   <li>Overriding the default queue type retrieval logic.</li>
+ *   <li>Handling spawn-related logic for a collection of players.</li>
+ *   <li>Progressing individual players through their next queue step.</li>
+ *   <li>Managing internal and plugin-specific queue operations.</li>
+ * </ul>
+ *
+ * <p>This class is designed to streamline the process of managing queue flow within
+ * the park system for complex scenarios and customized operations.</p>
+ */
 public class QueueBuilder extends Queue {
+    /**
+     * Represents the type of queue being constructed by the {@code QueueBuilder}.
+     *
+     * <p>This field holds an instance of {@link QueueType}, which defines the specific
+     * type of queue or ride system. It allows {@code QueueBuilder} to configure and
+     * manage the queue according to its unique characteristics.</p>
+     *
+     * <ul>
+     *   <li>When initialized, this field is {@code null} and must be explicitly set
+     *       before the {@code QueueBuilder} can function correctly.</li>
+     *   <li>Possible values for this field are defined in the {@link QueueType} enum, which
+     *       includes types such as {@code BLOCK}, {@code CAROUSEL}, {@code TEACUPS}, etc.</li>
+     * </ul>
+     *
+     * <p>Type-specific behaviors, descriptions, and other configurations for the queue
+     * can be accessed through methods within {@link QueueType}.</p>
+     *
+     * <p>This field plays a crucial role in determining the functionality and behavior
+     * of the queues or rides managed by the {@code QueueBuilder} class.</p>
+     */
     private QueueType type = null;
+
+    /**
+     * A <code>HashMap</code> that stores configuration or characteristic fields for
+     * defining the behavior of a queue type in the context of the queue management system.
+     * <p>
+     * The keys in this map represent the names of the fields or attributes, while the values
+     * represent the associated data or settings for those fields.
+     * <p>
+     * This member is private to ensure proper encapsulation and is utilized internally by
+     * the <code>QueueBuilder</code> class to customize and define specific properties that affect
+     * the operation or behavior of a queue.
+     *
+     * <ul>
+     * <li>Key: <code>String</code> - Represents the field name or identifier.</li>
+     * <li>Value: <code>Object</code> - Represents the associated value or configuration for the field.</li>
+     * </ul>
+     * <p>
+     * This map plays an integral role in defining how the corresponding queue type operates
+     * or interacts with other components of the queue management system.
+     */
     private HashMap<String, Object> queueTypeFields = new HashMap<>();
 
+    /**
+     * Constructs a new {@code QueueBuilder} instance for managing queue creation and configuration within a
+     * specific theme park or resort system.
+     *
+     * <p>This constructor initializes a {@code QueueBuilder} with default values inherited from the base
+     * {@link Queue} class, associating the queue with a specific {@link ParkType}.</p>
+     *
+     * @param park the {@link ParkType} that this queue will be associated with. It defines the specific park
+     *             or resort where the queue is implemented, such as Magic Kingdom, Epcot, or Animal Kingdom.
+     */
     public QueueBuilder(ParkType park) {
         super(null, park, null, null, null, 0, 0, false, null, new ArrayList<>());
     }
 
+    /**
+     * Retrieves the {@link QueueType} associated with this queue.
+     *
+     * <p>This method returns the type of queue or ride that is currently in use or configured.
+     * The {@link QueueType} determines the behavior, characteristics, and design of the queue system.</p>
+     *
+     * <p>Possible {@link QueueType} values include:</p>
+     * <ul>
+     *   <li>{@link QueueType#BLOCK} - Spawns a redstone block at a specific location for queued players.</li>
+     *   <li>{@link QueueType#CAROUSEL} - A carousel with rotating horses.</li>
+     *   <li>{@link QueueType#TEACUPS} - Spinning teacups arranged on revolving plates.</li>
+     *   <li>{@link QueueType#AERIAL_CAROUSEL} - A vertically moving carousel.</li>
+     *   <li>{@link QueueType#FILE} - A ride vehicle following a pre-determined path.</li>
+     * </ul>
+     *
+     * <p><strong>Note:</strong> This method may return {@code null} if no {@link QueueType} is specified or available
+     * for the current queue instance.</p>
+     *
+     * @return the {@link QueueType} representing the type of queue or ride, or {@code null} if none is set.
+     */
     @Override
     public QueueType getQueueType() {
         return null;
     }
 
+    /**
+     * Handles the logic for spawning players into the queue.
+     *
+     * <p>This method processes a list of players and performs the necessary actions
+     * to handle their entry into the queue system.</p>
+     *
+     * @param players the list of {@code CPlayer} objects representing the players
+     *                to be spawned into the queue.
+     */
     @Override
     protected void handleSpawn(List<CPlayer> players) {
     }
 
+    /**
+     * Processes and advances the configuration steps for creating a queue in a theme park system.
+     * This method handles different setup stages such as setting an ID, display name, warp point, group size,
+     * delay, station location, queue type, and further queue type-specific configurations.
+     *
+     * <p>Execution flow is determined by the current state of the configuration fields (e.g., {@code id}, {@code name}, {@code warp}).
+     * As each field is configured, the process steps to the next, prompting the player through chat messages.
+     *
+     * <p>Steps to configure a queue:
+     * <ul>
+     *   <li>Step 0: Set the queue ID.</li>
+     *   <li>Step 1: Set the queue display name.</li>
+     *   <li>Step 2: Set the warp point name.</li>
+     *   <li>Step 3: Define the group size.</li>
+     *   <li>Step 4: Set the delay time between groups.</li>
+     *   <li>Step 5: Define the station location.</li>
+     *   <li>Step 6: Set the queue type and handle specific configurations.</li>
+     * </ul>
+     *
+     * @param player The player running the command. Provides context for sending messages and obtaining location input.
+     * @param args   An array of arguments provided through the command. Supplies input for each configuration step,
+     *               depending on the current active step. Input types include:
+     *               <ul>
+     *                   <li>Queue ID: a unique identifier for the queue.</li>
+     *                   <li>Display name: a customizable string, supports color codes.</li>
+     *                   <li>Warp point: the name of the teleportation warp location.</li>
+     *                   <li>Group size: an integer between 1 and 100.</li>
+     *                   <li>Delay: an integer defining the interval (minimum of 5 seconds).</li>
+     *                   <li>Type: the specific type of the queue, such as "block", "carousel", "teacups", or "aerial_carousel".</li>
+     *               </ul>
+     */
     public void nextStep(CPlayer player, String[] args) {
         if (id == null) {
             //Step 0
@@ -291,6 +421,20 @@ public class QueueBuilder extends Queue {
         }
     }
 
+    /**
+     * Handles the configuration of a plugin-based queue system by guiding the player
+     * through setup steps like defining an exit location, assigning rewards, and optionally
+     * specifying an achievement.
+     *
+     * <p>This method is used iteratively to set up a queue, calling different steps based on
+     * the current state of the {@code queueTypeFields} map. It requests input and validates
+     * configurations for properties such as the queue's exit location and rewards.</p>
+     *
+     * @param player the {@link CPlayer} instance representing the player executing the command.
+     *               Used for receiving input and sending messages.
+     * @param args   an array of {@link String} arguments provided by the player when executing the command.
+     *               These may include values for honor points, monetary rewards, and optional achievement IDs.
+     */
     private void handlePluginQueue(CPlayer player, String[] args) {
         if (!queueTypeFields.containsKey("exit")) {
             player.sendMessage(ChatColor.YELLOW + "First, we need the 'exit' location. This is where players are brought to when they exit the ride.");
@@ -342,6 +486,32 @@ public class QueueBuilder extends Queue {
         }
     }
 
+    /**
+     * Finalizes the current queue creation process and registers the queue in the system.
+     * This method creates a specific type of queue based on the {@code type} field and relevant
+     * configuration attributes, notifying the player about the success or failure of the operation.
+     *
+     * <p>The queue type is determined using the {@code type} field, and the method handles each
+     * type with its respective logic:</p>
+     * <ul>
+     *   <li>{@link QueueType#BLOCK}: Creates a {@link BlockQueue} with a redstone block location.</li>
+     *   <li>{@link QueueType#CAROUSEL}, {@link QueueType#TEACUPS}, {@link QueueType#AERIAL_CAROUSEL},
+     *       {@link QueueType#FILE}: Creates a {@link PluginQueue} with additional configuration fields
+     *       such as exit location, currency type, and rewards.</li>
+     * </ul>
+     *
+     * <p>In case of successful queue creation:</p>
+     * <ul>
+     *   <li>The queue is registered to the system via {@link QueueManager#addQueue}.</li>
+     *   <li>The player is notified that the queue is ready and provided instructions to open it.</li>
+     * </ul>
+     *
+     * <p>If queue creation fails due to missing or invalid configuration, the player is informed
+     * of the error and prompted to contact a developer if the issue persists.</p>
+     *
+     * @param player the {@link CPlayer} executing the queue finalization command.
+     *               Used for sending messages and context-specific feedback.
+     */
     private void finish(CPlayer player) {
         player.sendMessage(ChatColor.YELLOW + "Great! Finalizing your " + type.name() + " Queue...");
         Queue finalQueue;

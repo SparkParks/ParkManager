@@ -32,6 +32,18 @@ import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
+/**
+ * Handles the management of shops, including loading, saving, and providing various operations
+ * such as adding, removing, and retrieving shops. Also supports interaction with shop inventories
+ * and purchasing items or outfits using in-game currency.
+ *
+ * <p>This class interacts with various subsystems and utilizes JSON configuration files to store
+ * and retrieve shop data. It provides functionality for different operations related to shops and
+ * their items or outfits.
+ *
+ * <p>Shops are associated with specific parks, and each shop contains unique items and outfits
+ * available for purchase by players.
+ */
 @SuppressWarnings("unchecked")
 public class ShopManager {
     private List<Shop> shops = new ArrayList<>();

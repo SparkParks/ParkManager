@@ -614,84 +614,131 @@ public class MagicBandManager {
                 new Menu(size, ChatColor.BLUE + "Wait Times (" + currentPark.getId() + ")", player, buttons).open();
                 break;
             }
-            case PARKS: { // // when a player opens this menu, it opens the list of parks a player can warp to
+            case PARKS: { // when a player opens this menu, it opens the list of parks a player can warp to
+                // create a new array list to add buttons to
                 List<MenuButton> buttons = Arrays.asList(
+                        // This button opens a server list for players to select a different park server
                         new MenuButton(0, ItemUtil.create(Material.END_CRYSTAL, ChatColor.AQUA + "Park Servers",
                                 Arrays.asList(ChatColor.GREEN + "Transfer to a different park server", "",
                                         ChatColor.YELLOW + "Current Server: " + ChatColor.GREEN + Core.getInstanceName(),
                                         ChatColor.AQUA + "" + ChatColor.ITALIC + "Coming Soon - use /f and /p for now")),
                                 ImmutableMap.of(ClickType.LEFT, p -> openInventory(p, BandInventory.SERVER_LIST))),
-
+                        // this button, when clicked, warps players to Walt Disney World Resort and closes the inventory gui
                         new MenuButton(4, ItemUtil.create(Material.EMPTY_MAP, ChatColor.AQUA + "Walt Disney World Resort", Collections.singletonList(ChatColor.GREEN + "/warp WDW")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
+                                    // perform the command as if the player typed it in chat
                                     p.performCommand("warp wdw");
+                                    // close the opened inventory screen
                                     p.closeInventory();
                                 })),
+                        // this button will warp players to Magic Kingdom Park when clicked
                         new MenuButton(11, ItemUtil.create(Material.DIAMOND_HOE, ChatColor.AQUA + "Magic Kingdom", Collections.singletonList(ChatColor.GREEN + "/warp MK")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
+                                    // perform the command as if the player typed it in chat
                                     p.performCommand("warp mk");
+                                    // close the opened inventory screen
                                     p.closeInventory();
                                 })),
+                        // this button, when clicked, warps players to Epcot
                         new MenuButton(12, ItemUtil.create(Material.SNOW_BALL, ChatColor.AQUA + "Epcot", Collections.singletonList(ChatColor.GREEN + "/warp Epcot")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
+                                    // perform the command as if the player typed it in chat
                                     p.performCommand("warp epcot");
+                                    // close the opened inventory screen
                                     p.closeInventory();
                                 })),
+                        // this button will warp players, when clicked, to Disney's Hollywood Studios
                         new MenuButton(13, ItemUtil.create(Material.JUKEBOX, ChatColor.AQUA + "Disney's Hollywood Studios", Collections.singletonList(ChatColor.GREEN + "/warp DHS")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
+                                    // perform the command as if the player typed it in chat
                                     p.performCommand("warp dhs");
+                                    // close the opened inventory screen
                                     p.closeInventory();
                                 })),
+                        // this button, when clicked, will warp players to Disney's Animal Kingdom
                         new MenuButton(14, ItemUtil.create(Material.SAPLING, 1, 5, ChatColor.AQUA + "Animal Kingdom", Collections.singletonList(ChatColor.GREEN + "/warp AK")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
+                                    // perform the command as if the player typed it in chat
                                     p.performCommand("warp ak");
+                                    // close the opened inventory screen
                                     p.closeInventory();
                                 })),
+                        // this button will warp players to Typhoon Lagoon
                         new MenuButton(15, ItemUtil.create(Material.WATER_BUCKET, ChatColor.AQUA + "Typhoon Lagoon", Collections.singletonList(ChatColor.GREEN + "/warp Typhoon")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
+                                    // perform the command as if the player typed it in chat
                                     p.performCommand("warp typhoon");
+                                    // close the opened inventory screen
                                     p.closeInventory();
                                 })),
+                        // this button will warp players to the Seasonal park
                         new MenuButton(28, ItemUtil.create(Material.EMPTY_MAP, ChatColor.AQUA + "Seasonal", Collections.singletonList(ChatColor.GREEN + "/warp Seasonal")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
+                                    // perform the command as if the player typed it in chat
                                     p.performCommand("warp seasonal");
+                                    // close the opened inventory screen
                                     p.closeInventory();
                                 })),
+                        // this button will warp players to Universal Studios Resort
                         new MenuButton(31, ItemUtil.create(Material.EMPTY_MAP, ChatColor.AQUA + "Universal Orlando Resort", Collections.singletonList(ChatColor.GREEN + "/warp UOR")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
+                                    // perform the command as if the player typed it in chat
                                     p.performCommand("warp uso");
+                                    // close the opened inventory screen
                                     p.closeInventory();
                                 })),
+                        // this button will warp players to Disney's Cruise Line
                         new MenuButton(34, ItemUtil.create(Material.BOAT, ChatColor.AQUA + "Disney Cruise Line", Collections.singletonList(ChatColor.GREEN + "/warp DCL")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
+                                    // perform the command as if the player typed it in chat
                                     p.performCommand("warp dcl");
+                                    // close the opened inventory screen
                                     p.closeInventory();
                                 })),
+                        // this button will warp players to Universal Studios Florida Park
                         new MenuButton(39, ItemUtil.create(Material.JUKEBOX, ChatColor.AQUA + "Universal Studios Florida", Collections.singletonList(ChatColor.GREEN + "/warp USF")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
+                                    // perform the command as if the player typed it in chat
                                     p.performCommand("warp usf");
+                                    // close the opened inventory screen
                                     p.closeInventory();
                                 })),
+                        // this button will warp players to Islands of Adventure
                         new MenuButton(41, ItemUtil.create(Material.JUKEBOX, ChatColor.AQUA + "Islands of Adventure", Collections.singletonList(ChatColor.GREEN + "/warp IOA")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
+                                    // perform the command as if the player typed it in chat
                                     p.performCommand("warp ioa");
+                                    // close the opened inventory screen
                                     p.closeInventory();
                                 })),
+                        // add the "go back" button
                         getBackButton(49, BandInventory.MAIN)
                 );
+                // create the new menu with the button array list we just created and open the menu
                 new Menu(54, ChatColor.BLUE + "Park Menu", player, buttons).open();
                 break;
             }
+            // when a player opens this menu, it showcases shops players can go into for purchasing in-game items
             case SHOP: {
+                // get the current park the player is in,
+                // or have it open a park selection for the player to go to in order to use this menu
                 ParkType currentPark = currentParkOrOpenParkMenu(player);
+                // if the currentPark does not exist, return null
                 if (currentPark == null) return;
+                // button array list to add a range of buttons
                 List<MenuButton> buttons = new ArrayList<>();
                 int i = 0;
                 int size = 18;
+                // for every shop in the currentPark, get the item representing the shop and add custom item meta
+                // and add it to a MenuButton that is being added to the buttons array list
                 for (Shop shop : ParkManager.getShopManager().getShops(currentPark)) {
+                    // get the item representing the shop
                     ItemStack item = shop.getItem();
+                    // get the shop item meta
                     ItemMeta meta = item.getItemMeta();
+                    // add lore (description) to the item telling the player the warp command to go to the shop
                     meta.setLore(Arrays.asList("", ChatColor.YELLOW + "/warp " + shop.getWarp()));
+                    // set the shop item meta to the custom meta we created
                     item.setItemMeta(meta);
                     if (i != 0 && i % 9 == 0) {
                         size += 9;
@@ -700,24 +747,30 @@ public class MagicBandManager {
                         size = 54;
                         break;
                     }
+                    // add a new menu button for every unbreakable shop item to the array list
                     buttons.add(new MenuButton(i++, ItemUtil.unbreakable(item), ImmutableMap.of(ClickType.LEFT, p -> {
                         p.performCommand("warp " + shop.getWarp());
                         p.closeInventory();
                     })));
                 }
+                // if the buttons array list is empty, then place a non-clickable button with information
+                // telling the player there are no shops on the server they are on
                 if (buttons.isEmpty()) {
                     buttons.add(new MenuButton(4, ItemUtil.create(Material.REDSTONE_BLOCK, ChatColor.RED + "No Shops",
                             Arrays.asList(ChatColor.GRAY + "Sorry, it looks like there are", ChatColor.GRAY + "no shops on this server!"))));
                 }
+                // add the "go back" button to the buttons array list
                 buttons.add(getBackButton(size - 5, BandInventory.MAIN));
+                // create the new menu with the specific number of slots, and the buttons array list. Open the gui
                 new Menu(size, ChatColor.BLUE + "Shop List (" + currentPark.getId() + ")", player, buttons).open();
                 break;
             }
-            case WARDROBE: {
+            case WARDROBE: { // a player opening this menu is brought a new menu with their wardrobe options
+                // open the player's first wardrobe page
                 ParkManager.getWardrobeManager().openWardrobePage(player, 1);
                 break;
             }
-            case PROFILE: {
+            case PROFILE: { // this is the player's profile menu
                 new Menu(27, ChatColor.BLUE + "My Profile", player, Arrays.asList(
                         new MenuButton(1, ItemUtil.create(Material.NETHER_STAR, ChatColor.AQUA + "Website",
                                 Collections.singletonList(ChatColor.GREEN + "Visit our website!")),

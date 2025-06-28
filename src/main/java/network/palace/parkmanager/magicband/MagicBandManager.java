@@ -968,105 +968,174 @@ public class MagicBandManager {
                 break;
             }
             case CUSTOMIZE_BAND: { // when opened, players are presented a new menu with options on customizing their MagicBand
+                // this array list contains all the buttons to be added for the menu
                 List<MenuButton> buttons = Arrays.asList(
+                        // this button, when clicked, will bring up the menu to customize the magic band type
                         new MenuButton(11, ItemUtil.create(getMaterial(BandType.SORCERER_MICKEY), ChatColor.GREEN + "Customize MagicBand Type"),
                                 ImmutableMap.of(ClickType.LEFT, p -> openInventory(p, BandInventory.CUSTOMIZE_BAND_TYPE))),
+                        // this button will change the menu screen to another one where players change the magic band color
                         new MenuButton(15, ItemUtil.create(Material.JUKEBOX, ChatColor.GREEN + "Customize MagicBand Name Color"),
                                 ImmutableMap.of(ClickType.LEFT, p -> openInventory(p, BandInventory.CUSTOMIZE_BAND_NAME))),
+                        // add the "go back" button
                         getBackButton(22, BandInventory.MAIN)
                 );
+                // create the new menu for the player with the buttons and open it
                 new Menu(27, ChatColor.BLUE + "Customize MagicBand", player, buttons).open();
                 break;
             }
             case CUSTOMIZE_BAND_TYPE: { // this menu allows players to customize the band type of their magic band
+                // get the red magicband item
                 ItemStack red = getMagicBandItem("red", (String) player.getRegistry().getEntry("bandNameColor"));
+                // the band item meta, this is being updated with every item
                 ItemMeta meta = red.getItemMeta();
+                // set the display name to the RED name from BandType
                 meta.setDisplayName(BandType.RED.getName());
+                // set the item meta to our custom meta
                 red.setItemMeta(meta);
+                // get the orange magicband item
                 ItemStack orange = getMagicBandItem("orange", (String) player.getRegistry().getEntry("bandNameColor"));
+                // the orange item meta
                 meta = orange.getItemMeta();
+                // set the meta display name of the item to Orange's enum name
                 meta.setDisplayName(BandType.ORANGE.getName());
+                // set the orange item meta
                 orange.setItemMeta(meta);
+                // get the yellow magicband item
                 ItemStack yellow = getMagicBandItem("yellow", (String) player.getRegistry().getEntry("bandNameColor"));
+                // get yellow's item meta
                 meta = yellow.getItemMeta();
+                // set the meta display name of the item to yellow's enum name
                 meta.setDisplayName(BandType.YELLOW.getName());
+                // set the item meta
                 yellow.setItemMeta(meta);
+                // get the green magicband item
                 ItemStack green = getMagicBandItem("green", (String) player.getRegistry().getEntry("bandNameColor"));
+                // get green's item meta
                 meta = green.getItemMeta();
+                // set the meta display name of the item to green's enum name
                 meta.setDisplayName(BandType.GREEN.getName());
+                // set the item meta
                 green.setItemMeta(meta);
+                // get the blue magicband item
                 ItemStack blue = getMagicBandItem("blue", (String) player.getRegistry().getEntry("bandNameColor"));
+                // get the item meta of the blue item band
                 meta = blue.getItemMeta();
+                // set the meta display name of the item to blue's enum name
                 meta.setDisplayName(BandType.BLUE.getName());
+                // set the item meta
                 blue.setItemMeta(meta);
+                // get the purple magicband item
                 ItemStack purple = getMagicBandItem("purple", (String) player.getRegistry().getEntry("bandNameColor"));
+                // get the item meta for purple
                 meta = purple.getItemMeta();
+                // set the meta display name of the item to purple's enum name
                 meta.setDisplayName(BandType.PURPLE.getName());
+                // set the item meta
                 purple.setItemMeta(meta);
+                // get the pink magicband item
                 ItemStack pink = getMagicBandItem("pink", (String) player.getRegistry().getEntry("bandNameColor"));
+                // the pink item meta
                 meta = pink.getItemMeta();
+                // set the meta display name of the item to pink's enum name
                 meta.setDisplayName(BandType.PINK.getName());
+                // set the item meta
                 pink.setItemMeta(meta);
+                // create a array list to add the items to a button to be clicked on
                 List<MenuButton> buttons = Arrays.asList(
+                        // the red band item button, when clicked it will set the player's band color to red
                         new MenuButton(1, red, ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.RED.getDBName()))),
+                        // the orange band item button, when clicked it will set the player's band color to orange
                         new MenuButton(2, orange, ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.ORANGE.getDBName()))),
+                        // the yellow band item button, when clicked it will set the player's band color to yellow
                         new MenuButton(3, yellow, ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.YELLOW.getDBName()))),
+                        // the green band item button, when clicked it will set the player's band color to green
                         new MenuButton(4, green, ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.GREEN.getDBName()))),
+                        // the blue band item button, when clicked it will set the player's band color to blue
                         new MenuButton(5, blue, ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.BLUE.getDBName()))),
+                        // the purple band item button, when clicked it will set the player's band color to purple
                         new MenuButton(6, purple, ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.PURPLE.getDBName()))),
+                        // the pink band item button, when clicked it will set the player's band color to pink
                         new MenuButton(7, pink, ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.PINK.getDBName()))),
 
+                        // these buttons are of non-color bands, in other words, these are of special band types
+
+                        // this will change the player's band to the sorcerer mickey band type
                         new MenuButton(11, ItemUtil.unbreakable(ItemUtil.create(getMaterial(BandType.SORCERER_MICKEY), BandType.SORCERER_MICKEY.getName())),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.SORCERER_MICKEY.getDBName()))),
+                        // this will change the player's band to the haunted mansion band type
                         new MenuButton(12, ItemUtil.unbreakable(ItemUtil.create(getMaterial(BandType.HAUNTED_MANSION), BandType.HAUNTED_MANSION.getName())),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.HAUNTED_MANSION.getDBName()))),
+                        // this will change the player's band to the princesses band type
                         new MenuButton(13, ItemUtil.unbreakable(ItemUtil.create(getMaterial(BandType.PRINCESSES), BandType.PRINCESSES.getName())),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.PRINCESSES.getDBName()))),
+                        // this will change the player's band to the big hero six band type
                         new MenuButton(14, ItemUtil.unbreakable(ItemUtil.create(getMaterial(BandType.BIG_HERO_SIX), BandType.BIG_HERO_SIX.getName())),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.BIG_HERO_SIX.getDBName()))),
+                        // this will change the player's band to the holiday band type
                         new MenuButton(15, ItemUtil.unbreakable(ItemUtil.create(getMaterial(BandType.HOLIDAY), BandType.HOLIDAY.getName())),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.HOLIDAY.getDBName()))),
 
+                        // this will change the player's band to the Nookphone type
                         new MenuButton(22, ItemUtil.unbreakable(ItemUtil.create(getMaterial(BandType.NOOKPHONE), BandType.NOOKPHONE.getName())),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandType(p, BandType.NOOKPHONE.getDBName()))),
+                        // go back button
                         getBackButton(31, BandInventory.CUSTOMIZE_BAND)
                 );
+                // create the new menu with all buttons and open it
                 new Menu(36, ChatColor.BLUE + "Customize MagicBand Type", player, buttons).open();
                 break;
             }
             case CUSTOMIZE_BAND_NAME: { // this menu allows players to customize the magic band name based on the color of their choosing
+                // this is an array list of buttons to allow players to select a new band name for their magic band
                 List<MenuButton> buttons = Arrays.asList(
+                        // this will change the player's band name to red
                         new MenuButton(10, ItemUtil.create(Material.CONCRETE, ChatColor.RED + "Red", 14),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandNameColor(p, "red"))),
+                        // this will change the player's band name to orange
                         new MenuButton(11, ItemUtil.create(Material.CONCRETE, ChatColor.GOLD + "Orange", 1),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandNameColor(p, "orange"))),
+                        // this will change the player's band name to yellow
                         new MenuButton(12, ItemUtil.create(Material.CONCRETE, ChatColor.YELLOW + "Yellow", 4),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandNameColor(p, "yellow"))),
+                        // this will change the player's band name to green
                         new MenuButton(13, ItemUtil.create(Material.CONCRETE, ChatColor.DARK_GREEN + "Green", 13),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandNameColor(p, "green"))),
+                        // this will change the player's band name to blue
                         new MenuButton(14, ItemUtil.create(Material.CONCRETE, ChatColor.BLUE + "Blue", 11),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandNameColor(p, "blue"))),
+                        // this will change the player's band name to purple
                         new MenuButton(15, ItemUtil.create(Material.CONCRETE, ChatColor.DARK_PURPLE + "Purple", 10),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandNameColor(p, "purple"))),
+                        // this will change the player's band name to pink
                         new MenuButton(16, ItemUtil.create(Material.CONCRETE, ChatColor.LIGHT_PURPLE + "Pink", 6),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandNameColor(p, "pink"))),
+                        // go back button
                         getBackButton(22, BandInventory.CUSTOMIZE_BAND)
                 );
+                // create the new menu with the buttons and open it
                 new Menu(27, ChatColor.BLUE + "Customize MagicBand Name Color", player, buttons).open();
                 break;
             }
             case TIMETABLE: { // when opened, a menu showing the show and events timetable is displayed
+                // get the schedule buttons predefined in the Schedule Manager
                 List<MenuButton> buttons = ParkManager.getScheduleManager().getButtons();
+                // add the go back button to the list
                 buttons.add(getBackButton(49, BandInventory.SHOWS));
+                // create the new menu with the buttons list and open it
                 new Menu(54, ChatColor.BLUE + "Show Timetable", player, buttons).open();
                 break;
             }
             case PLAYER_TIME: { // player time is toggled if players wish to follow real life time for the park they are in,
                                 // or just follow in-game time
+                // early morning time in the minecraft world
                 long time = player.getBukkitPlayer().getPlayerTime() % 24000;
+                // get the player's current selection as a singleton list
                 List<String> current = Collections.singletonList(ChatColor.YELLOW + "Currently Selected!");
+                // a new list of what is not selected the player has the ability to select
                 List<String> not = Collections.singletonList(ChatColor.GRAY + "Click to Select!");
+                // create the new menuy with the buttons player's use to adjust their time and open the menu at the end
                 new Menu(27, ChatColor.BLUE + "Player Time", player, Arrays.asList(
+                        // this button will reset their in-game time to match the park time
                         new MenuButton(9, ItemUtil.create(Material.STAINED_GLASS_PANE, ChatColor.GREEN + "Reset",
                                 Collections.singletonList(ChatColor.GREEN + "Match Park Time")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
@@ -1075,6 +1144,7 @@ public class MagicBandManager {
                                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_PLING, 100, 2);
                                     openInventory(p, BandInventory.PLAYER_TIME);
                                 })),
+                        // this button will set a player's time to 0600 (6am)
                         new MenuButton(10, ItemUtil.create(Material.WATCH, ChatColor.GREEN + "6AM", time == 0 ? current : not),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     p.getBukkitPlayer().setPlayerTime(0, false);
@@ -1082,6 +1152,7 @@ public class MagicBandManager {
                                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_PLING, 100, 2);
                                     openInventory(p, BandInventory.PLAYER_TIME);
                                 })),
+                        // this button will set a player's time to 0900 (9am)
                         new MenuButton(11, ItemUtil.create(Material.WATCH, ChatColor.GREEN + "9AM", time == 3000 ? current : not),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     p.getBukkitPlayer().setPlayerTime(3000, false);
@@ -1089,6 +1160,7 @@ public class MagicBandManager {
                                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_PLING, 100, 2);
                                     openInventory(p, BandInventory.PLAYER_TIME);
                                 })),
+                        // this button will set a player's time to 1200 (12pm)
                         new MenuButton(12, ItemUtil.create(Material.WATCH, ChatColor.GREEN + "12PM", time == 6000 ? current : not),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     p.getBukkitPlayer().setPlayerTime(6000, false);
@@ -1096,6 +1168,7 @@ public class MagicBandManager {
                                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_PLING, 100, 2);
                                     openInventory(p, BandInventory.PLAYER_TIME);
                                 })),
+                        // this button will set a player's time to 1500 (3pm)
                         new MenuButton(13, ItemUtil.create(Material.WATCH, ChatColor.GREEN + "3PM", time == 9000 ? current : not),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     p.getBukkitPlayer().setPlayerTime(9000, false);
@@ -1103,6 +1176,7 @@ public class MagicBandManager {
                                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_PLING, 100, 2);
                                     openInventory(p, BandInventory.PLAYER_TIME);
                                 })),
+                        // this button will set a player's time to 1800 (6pm)
                         new MenuButton(14, ItemUtil.create(Material.WATCH, ChatColor.GREEN + "6PM", time == 12000 ? current : not),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     p.getBukkitPlayer().setPlayerTime(12000, false);
@@ -1110,6 +1184,7 @@ public class MagicBandManager {
                                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_PLING, 100, 2);
                                     openInventory(p, BandInventory.PLAYER_TIME);
                                 })),
+                        // this button will set a player's time to 2100 (9pm)
                         new MenuButton(15, ItemUtil.create(Material.WATCH, ChatColor.GREEN + "9PM", time == 15000 ? current : not),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     p.getBukkitPlayer().setPlayerTime(15000, false);
@@ -1117,6 +1192,7 @@ public class MagicBandManager {
                                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_PLING, 100, 2);
                                     openInventory(p, BandInventory.PLAYER_TIME);
                                 })),
+                        // this button will set a player's time to 0000 (12am)
                         new MenuButton(16, ItemUtil.create(Material.WATCH, ChatColor.GREEN + "12AM", time == 18000 ? current : not),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     p.getBukkitPlayer().setPlayerTime(18000, false);
@@ -1124,6 +1200,7 @@ public class MagicBandManager {
                                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_PLING, 100, 2);
                                     openInventory(p, BandInventory.PLAYER_TIME);
                                 })),
+                        // this button will set a player's time to 0300 (3am)
                         new MenuButton(17, ItemUtil.create(Material.WATCH, ChatColor.GREEN + "3AM", time == 21000 ? current : not),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     p.getBukkitPlayer().setPlayerTime(21000, false);
@@ -1131,6 +1208,7 @@ public class MagicBandManager {
                                     p.playSound(p.getLocation(), Sound.BLOCK_NOTE_PLING, 100, 2);
                                     openInventory(p, BandInventory.PLAYER_TIME);
                                 })),
+                        // go back button
                         getBackButton(22, BandInventory.MAIN)
                 )).open();
                 break;
@@ -1151,8 +1229,11 @@ public class MagicBandManager {
      * @return The {@link ParkType} corresponding to the player's current park if found; otherwise, {@code null}.
      */
     private ParkType currentParkOrOpenParkMenu(CPlayer player) {
+        // get the current park location the player is in
         Park p = ParkManager.getParkUtil().getPark(player.getLocation());
+        // if the park is not null, then return the park's ID
         if (p != null) return p.getId();
+        // open the inventory gui for selecting a park to go to
         openInventory(player, BandInventory.PARKS);
         return null;
     }
@@ -1241,10 +1322,15 @@ public class MagicBandManager {
      * @param type   A {@code String} specifying the new band type to assign to the player. The value will be stored in lowercase.
      */
     private void setBandType(CPlayer player, String type) {
+        // add an entry to the player's registry for the band type name
         player.getRegistry().addEntry("bandType", type.toLowerCase());
+        // update the player's storage inventory
         ParkManager.getStorageManager().updateInventory(player);
+        // send the player a message of the successful band change
         player.sendMessage(ChatColor.GREEN + "You've changed to a " + BandType.fromString(type).getName() + ChatColor.GREEN + " MagicBand!");
+        // close the inventory
         player.closeInventory();
+        // run a background task that changes the player's mongo data
         Core.runTaskAsynchronously(ParkManager.getInstance(), () -> Core.getMongoHandler().setMagicBandData(player.getUniqueId(), "bandtype", type.toLowerCase()));
     }
 
@@ -1265,10 +1351,15 @@ public class MagicBandManager {
      * @param color  A {@code String} specifying the new color to apply to the MagicBand name. The input is converted to lowercase before being stored.
      */
     private void setBandNameColor(CPlayer player, String color) {
+        // add an entry to the player registry of their band's color
         player.getRegistry().addEntry("bandNameColor", color.toLowerCase());
+        // update the player's storage inventory
         ParkManager.getStorageManager().updateInventory(player);
+        // send the player a message of the successful band color change
         player.sendMessage(ChatColor.GREEN + "You've set your MagicBand's name color to " + getNameColor(color) + color + "!");
+        // close the inventory
         player.closeInventory();
+        // run a background task that changes the player's mongo data
         Core.runTaskAsynchronously(ParkManager.getInstance(), () -> Core.getMongoHandler().setMagicBandData(player.getUniqueId(), "namecolor", color.toLowerCase()));
     }
 
@@ -1289,15 +1380,19 @@ public class MagicBandManager {
      */
     public void handleJoin(CPlayer player, Document doc) {
         String bandtype, namecolor;
+        // if the player mongo document does not contain band type or name color, then set it to the default settings
         if (!doc.containsKey("bandtype") || !doc.containsKey("namecolor")) {
             bandtype = "red";
             namecolor = "gold";
-        } else {
+        } else { // if the document does contain the keys, get the strings from said keys
             bandtype = doc.getString("bandtype");
             namecolor = doc.getString("namecolor");
         }
+        // add an entry to the player's registry of the band type
         player.getRegistry().addEntry("bandType", bandtype);
+        // add an entry to the player's registry of the band color
         player.getRegistry().addEntry("bandNameColor", namecolor);
+        // run a task in the background to add ride counter data to the player document
         Core.runTaskAsynchronously(() -> {
             TreeMap<String, RideCount> data = new TreeMap<>();
             for (Object o : Core.getMongoHandler().getRideCounterData(player.getUniqueId())) {

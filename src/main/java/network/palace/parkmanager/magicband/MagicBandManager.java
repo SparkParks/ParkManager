@@ -771,7 +771,10 @@ public class MagicBandManager {
                 break;
             }
             case PROFILE: { // this is the player's profile menu
+                // create a new menu for the player having buttons for the server website, store page, player's locker,
+                // ride counters, photopass settings, achievements, resource packs, and server discord
                 new Menu(27, ChatColor.BLUE + "My Profile", player, Arrays.asList(
+                        // this button holds the website link. When clicked, it will bring up the server website in the player's web browser
                         new MenuButton(1, ItemUtil.create(Material.NETHER_STAR, ChatColor.AQUA + "Website",
                                 Collections.singletonList(ChatColor.GREEN + "Visit our website!")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
@@ -782,6 +785,7 @@ public class MagicBandManager {
                                             .link("https://palace.network").then("\n").send(p);
                                     p.closeInventory();
                                 })),
+                        // this button will send players a web link to open in their web browser.
                         new MenuButton(10, ItemUtil.create(Material.DIAMOND, ChatColor.AQUA + "Store",
                                 Collections.singletonList(ChatColor.GREEN + "Visit our store!")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
@@ -792,24 +796,30 @@ public class MagicBandManager {
                                             .link("https://store.palace.network").then("\n").send(p);
                                     p.closeInventory();
                                 })),
+                        // this button will open their locker storage menu
                         new MenuButton(3, ItemUtil.create(Material.ENDER_CHEST, ChatColor.AQUA + "Locker",
                                 Collections.singletonList(ChatColor.GREEN + "Click to view your Locker")),
                                 ImmutableMap.of(ClickType.LEFT, p -> ParkManager.getInventoryUtil().openMenu(p, MenuType.LOCKER))),
+                        // this button will allow the player to view the number of times they have been on different rides
                         new MenuButton(12, ItemUtil.create(Material.GOLD_INGOT, ChatColor.AQUA + "Ride Counters",
                                 Arrays.asList(ChatColor.GREEN + "View the number of times you've",
                                         ChatColor.GREEN + "been on different theme park rides")),
                                 ImmutableMap.of(ClickType.LEFT, p -> openInventory(p, BandInventory.RIDE_COUNTERS))),
+                        // this button opens a new menu to allow players to change settings in regards to Photopass
                         new MenuButton(5, ItemUtil.create(Material.CLAY_BRICK, ChatColor.AQUA + "PhotoPass Settings",
                                 Arrays.asList(ChatColor.GREEN + "Manage Settings for", ChatColor.GREEN + "Ride Photos and Photo Spots!")),
                                 ImmutableMap.of(ClickType.LEFT, p -> openInventory(p, BandInventory.RIDE_PHOTOS))),
+                        // this button allows players to see all of the achievements they have collected
                         new MenuButton(14, ItemUtil.create(Material.EMERALD, ChatColor.AQUA + "Achievements", Arrays.asList(ChatColor.GREEN +
                                         "You've earned " + ChatColor.YELLOW + player.getAchievementManager().getAchievements().size() + ChatColor.GREEN + " achievements!",
                                 ChatColor.GREEN + "There are " + ChatColor.YELLOW + Core.getAchievementManager().getAchievements().size() + ChatColor.GREEN + " total to earn",
                                 ChatColor.GRAY + "Click to view all of your achievements")),
                                 ImmutableMap.of(ClickType.LEFT, p -> Core.getCraftingMenu().openAchievementPage(p, 1))),
+                        // this menu button allows players to manage their serve resource pack settings
                         new MenuButton(7, ItemUtil.create(Material.NOTE_BLOCK, ChatColor.AQUA + "Resource Packs",
                                 Collections.singletonList(ChatColor.GREEN + "Manage your Resource Pack settings")),
                                 ImmutableMap.of(ClickType.LEFT, p -> ParkManager.getPackManager().openMenu(p))),
+                        // this button will take players to an invite of the server discord
                         new MenuButton(16, ItemUtil.create(Material.COMPASS, ChatColor.AQUA + "Discord",
                                 Collections.singletonList(ChatColor.GREEN + "Join the conversation on our Discord!")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
@@ -820,16 +830,22 @@ public class MagicBandManager {
                                             .command("/discord").then("\n").send(p);
                                     p.closeInventory();
                                 })),
+                        // get the "go back a page" button
                         getBackButton(22, BandInventory.MAIN)
                 )).open();
                 break;
             }
+            // when clicked from the main menu or in the player's profile,
+            // it will open the counter for all the rides a player has been on
             case RIDE_COUNTERS: {
+                // open the ride counter menu page
                 openRideCounterPage(player, 1);
                 break;
             }
-            case RIDE_PHOTOS: {
+            case RIDE_PHOTOS: { // this is the menu for players to change photopass settings
+                // create the new menu to showcase the settings a player can edit for photopass
                 new Menu(27, ChatColor.BLUE + "PhotoPass Settings", player, Arrays.asList(
+                        // this button, depending on if it is toggled ON or not, will determine if ride photos are allowed for the player
                         new MenuButton(13, ItemUtil.create(Material.LEVER, ChatColor.AQUA + "Toggle RidePhotos",
                                 Collections.singletonList(ChatColor.GREEN + "Toggle RidePhotos On/Off")),
                                 ImmutableMap.of(ClickType.LEFT, p -> {
@@ -840,56 +856,80 @@ public class MagicBandManager {
                 )).open();
                 break;
             }
-            case VISIBILITY: {
+            case VISIBILITY: { // when clicked open, it brings up a new menu for players to change player visibility settings
+                // get the player visibility settings from the database
                 VisibilityUtil.Setting setting = ParkManager.getVisibilityUtil().getSetting(player);
+                // create an item representing the "visible" option
                 ItemStack visible = ItemUtil.create(VisibilityUtil.Setting.ALL_VISIBLE.getBlock(), 1,
                         VisibilityUtil.Setting.ALL_VISIBLE.getData(),
                         VisibilityUtil.Setting.ALL_VISIBLE.getColor() + VisibilityUtil.Setting.ALL_VISIBLE.getText()
                                 + (setting.equals(VisibilityUtil.Setting.ALL_VISIBLE) ? (ChatColor.YELLOW + " (SELECTED)") : ""),
                         Collections.singletonList(ChatColor.GREEN + "Show all players"));
+                // create an item representing the "staff and friends" option
                 ItemStack staffFriends = ItemUtil.create(VisibilityUtil.Setting.ONLY_STAFF_AND_FRIENDS.getBlock(), 1,
                         VisibilityUtil.Setting.ONLY_STAFF_AND_FRIENDS.getData(),
                         VisibilityUtil.Setting.ONLY_STAFF_AND_FRIENDS.getColor() + VisibilityUtil.Setting.ONLY_STAFF_AND_FRIENDS.getText()
                                 + (setting.equals(VisibilityUtil.Setting.ONLY_STAFF_AND_FRIENDS) ? (ChatColor.YELLOW + " (SELECTED)") : ""),
                         Collections.singletonList(ChatColor.GREEN + "Show only staff and friends"));
+                // create an item representing the "friends only" option
                 ItemStack friends = ItemUtil.create(VisibilityUtil.Setting.ONLY_FRIENDS.getBlock(), 1,
                         VisibilityUtil.Setting.ONLY_FRIENDS.getData(),
                         VisibilityUtil.Setting.ONLY_FRIENDS.getColor() + VisibilityUtil.Setting.ONLY_FRIENDS.getText()
                                 + (setting.equals(VisibilityUtil.Setting.ONLY_FRIENDS) ? (ChatColor.YELLOW + " (SELECTED)") : ""),
                         Collections.singletonList(ChatColor.GREEN + "Show only friends"));
+                // create an item representing the "none visible" option
                 ItemStack none = ItemUtil.create(VisibilityUtil.Setting.ALL_HIDDEN.getBlock(), 1,
                         VisibilityUtil.Setting.ALL_HIDDEN.getData(),
                         VisibilityUtil.Setting.ALL_HIDDEN.getColor() + VisibilityUtil.Setting.ALL_HIDDEN.getText()
                                 + (setting.equals(VisibilityUtil.Setting.ALL_HIDDEN) ? (ChatColor.YELLOW + " (SELECTED)") : ""),
                         Collections.singletonList(ChatColor.GREEN + "Hide all players"));
+                // the item meta to be gathered for each item setting placeholder
                 ItemMeta meta;
-                switch (setting) {
-                    case ALL_VISIBLE:
+                switch (setting) { // switch the setting variable with each visibility enumeration member
+                    case ALL_VISIBLE: // the setting being all players visible
+                        // add a luck enchantment to show it was selected
                         visible.addUnsafeEnchantment(Enchantment.LUCK, 1);
+                        // get the item's meta data
                         meta = visible.getItemMeta();
+                        // remove any enchants
                         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                        // set the item meta data
                         visible.setItemMeta(meta);
                         break;
                     case ONLY_STAFF_AND_FRIENDS:
+                        // add a luck enchantment to show it was selected
                         staffFriends.addUnsafeEnchantment(Enchantment.LUCK, 1);
+                        // get the item's meta data
                         meta = staffFriends.getItemMeta();
+                        // remove any enchants
                         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                        // set the item meta data
                         staffFriends.setItemMeta(meta);
                         break;
                     case ONLY_FRIENDS:
+                        // add a luck enchantment to show it was selected
                         friends.addUnsafeEnchantment(Enchantment.LUCK, 1);
+                        // get the item's meta data
                         meta = friends.getItemMeta();
+                        // remove any enchants
                         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                        // set the item meta data
                         friends.setItemMeta(meta);
                         break;
                     case ALL_HIDDEN:
+                        // add a luck enchantment to show it was selected
                         none.addUnsafeEnchantment(Enchantment.LUCK, 1);
+                        // get the item's meta data
                         meta = none.getItemMeta();
+                        // remove any enchants
                         meta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                        // set the item meta data
                         none.setItemMeta(meta);
                         break;
                 }
+                // array list of buttons to add to the menu
                 List<MenuButton> buttons = Arrays.asList(
+                        // this button is for the all players visible setting. When clicked, a sound is played telling the player it worked
                         new MenuButton(10, visible,
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     if (ParkManager.getVisibilityUtil().setSetting(p, VisibilityUtil.Setting.ALL_VISIBLE, false)) {
@@ -897,6 +937,7 @@ public class MagicBandManager {
                                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_PLING, 1, 2);
                                     }
                                 })),
+                        // this button is for the staff and friends visible setting. When clicked, a sound is played telling the player it worked
                         new MenuButton(12, staffFriends,
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     if (ParkManager.getVisibilityUtil().setSetting(p, VisibilityUtil.Setting.ONLY_STAFF_AND_FRIENDS, false)) {
@@ -904,6 +945,7 @@ public class MagicBandManager {
                                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_PLING, 1, 2);
                                     }
                                 })),
+                        // this button is for the friends only visible setting. When clicked, a sound is played telling the player it worked
                         new MenuButton(14, friends,
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     if (ParkManager.getVisibilityUtil().setSetting(p, VisibilityUtil.Setting.ONLY_FRIENDS, false)) {
@@ -911,6 +953,7 @@ public class MagicBandManager {
                                         player.playSound(player.getLocation(), Sound.BLOCK_NOTE_PLING, 1, 2);
                                     }
                                 })),
+                        // this button is for the all players are hidden visible setting. When clicked, a sound is played telling the player it worked
                         new MenuButton(16, none,
                                 ImmutableMap.of(ClickType.LEFT, p -> {
                                     if (ParkManager.getVisibilityUtil().setSetting(p, VisibilityUtil.Setting.ALL_HIDDEN, false)) {
@@ -920,10 +963,11 @@ public class MagicBandManager {
                                 })),
                         getBackButton(22, BandInventory.MAIN)
                 );
+                // create the new menu and open it showcasing the set of settings to choose from
                 new Menu(27, ChatColor.BLUE + "Visibility Settings", player, buttons).open();
                 break;
             }
-            case CUSTOMIZE_BAND: {
+            case CUSTOMIZE_BAND: { // when opened, players are presented a new menu with options on customizing their MagicBand
                 List<MenuButton> buttons = Arrays.asList(
                         new MenuButton(11, ItemUtil.create(getMaterial(BandType.SORCERER_MICKEY), ChatColor.GREEN + "Customize MagicBand Type"),
                                 ImmutableMap.of(ClickType.LEFT, p -> openInventory(p, BandInventory.CUSTOMIZE_BAND_TYPE))),
@@ -934,7 +978,7 @@ public class MagicBandManager {
                 new Menu(27, ChatColor.BLUE + "Customize MagicBand", player, buttons).open();
                 break;
             }
-            case CUSTOMIZE_BAND_TYPE: {
+            case CUSTOMIZE_BAND_TYPE: { // this menu allows players to customize the band type of their magic band
                 ItemStack red = getMagicBandItem("red", (String) player.getRegistry().getEntry("bandNameColor"));
                 ItemMeta meta = red.getItemMeta();
                 meta.setDisplayName(BandType.RED.getName());
@@ -990,7 +1034,7 @@ public class MagicBandManager {
                 new Menu(36, ChatColor.BLUE + "Customize MagicBand Type", player, buttons).open();
                 break;
             }
-            case CUSTOMIZE_BAND_NAME: {
+            case CUSTOMIZE_BAND_NAME: { // this menu allows players to customize the magic band name based on the color of their choosing
                 List<MenuButton> buttons = Arrays.asList(
                         new MenuButton(10, ItemUtil.create(Material.CONCRETE, ChatColor.RED + "Red", 14),
                                 ImmutableMap.of(ClickType.LEFT, p -> setBandNameColor(p, "red"))),
@@ -1011,13 +1055,14 @@ public class MagicBandManager {
                 new Menu(27, ChatColor.BLUE + "Customize MagicBand Name Color", player, buttons).open();
                 break;
             }
-            case TIMETABLE: {
+            case TIMETABLE: { // when opened, a menu showing the show and events timetable is displayed
                 List<MenuButton> buttons = ParkManager.getScheduleManager().getButtons();
                 buttons.add(getBackButton(49, BandInventory.SHOWS));
                 new Menu(54, ChatColor.BLUE + "Show Timetable", player, buttons).open();
                 break;
             }
-            case PLAYER_TIME: {
+            case PLAYER_TIME: { // player time is toggled if players wish to follow real life time for the park they are in,
+                                // or just follow in-game time
                 long time = player.getBukkitPlayer().getPlayerTime() % 24000;
                 List<String> current = Collections.singletonList(ChatColor.YELLOW + "Currently Selected!");
                 List<String> not = Collections.singletonList(ChatColor.GRAY + "Click to Select!");

@@ -42,16 +42,133 @@ import org.bukkit.inventory.meta.ItemMeta;
 import java.util.*;
 import java.util.logging.Level;
 
+/**
+ * The <code>StorageManager</code> class handles storage-related functionality for players,
+ * including inventory updates, database synchronization, and management of banned items.
+ * This class manages player inventories, processes join and logout events, and provides
+ * static utility methods for manipulating inventory data.
+ *
+ * <p>Key responsibilities of <code>StorageManager</code> include:</p>
+ * <ul>
+ *   <li>Initializing storage and inventory systems for players.</li>
+ *   <li>Handling player join and logout events, ensuring database synchronization.</li>
+ *   <li>Managing updates to player inventories based on gameplay states such as build mode.</li>
+ *   <li>Providing static utility methods for inventory manipulation and data transformation.</li>
+ * </ul>
+ *
+ * <p>The class includes fields to manage banned items, players waiting for inventory updates,
+ * joined players, and objects related to player backpack storage.</p>
+ */
 public class StorageManager {
+    /**
+     * A predefined list of {@link Material} objects representing items that are banned
+     * from being included in player inventories within the system.
+     * <p>
+     * These items will be filtered out or removed when handling inventories, ensuring
+     * players are restricted from using or accessing any banned materials.
+     * </p>
+     * <p>
+     * Contains the following banned materials:
+     * <ul>
+     *   <li>{@link Material#MINECART}</li>
+     *   <li>{@link Material#SNOW_BALL}</li>
+     *   <li>{@link Material#ARROW}</li>
+     * </ul>
+     * </p>
+     * <p>
+     * This list remains static throughout the application's runtime and cannot be modified.
+     * </p>
+     */
     private static final List<Material> bannedItems = Arrays.asList(Material.MINECART, Material.SNOW_BALL, Material.ARROW);
+    /**
+     * A map used to store information about players who require their inventory to be set
+     * after joining. This is especially useful for managing the state of players within the game.
+     * The map uses the player's {@link UUID} as the key, while the value is a {@link Boolean}
+     * signifying whether the player should join in build mode.
+     *
+     * <p>Key characteristics:</p>
+     * <ul>
+     *     <li><b>Key ({@link UUID}):</b> Represents the unique identifier of the player.</li>
+     *     <li><b>Value ({@link Boolean}):</b> Indicates whether the player is in build mode
+     *         (<code>true</code> if in build mode, <code>false</code> otherwise).</li>
+     * </ul>
+     *
+     * <p>
+     * This variable is primarily utilized for managing player states upon login and ensuring
+     * their inventories match their required configurations.
+     * </p>
+     *
+     * <p>Thread Safety: As this map is marked as <code>private final</code>, it can only be
+     * accessed or modified inside the class that declares it. However, it is not inherently
+     * thread-safe. If used in a multi-threaded environment, synchronization methods should be
+     * considered to avoid race conditions.</p>
+     *
+     * <p>Usage Context:</p>
+     * <ul>
+     *     <li>Assign the appropriate inventory to players upon joining.</li>
+     *     <li>Track and handle build mode configuration for specific players.</li>
+     *     <li>Ensure game mechanics related to player inventory updates are properly synchronized.</li>
+     * </ul>
+     */
     // Map used to store players that need their inventory set after joining
     // Boolean represents build mode
     private final HashMap<UUID, Boolean> joinList = new HashMap<>();
+    /**
+     * A data structure that stores players who are waiting for their inventory data
+     * to finish uploading from a previous server.
+     *
+     * <p>The map uses the player's UUID as a key, and the corresponding value is the timestamp
+     * (in milliseconds) when they were added to the queue.</p>
+     *
+     * <p>Players who remain in this queue for longer than 5 seconds should be prompted
+     * to disconnect and reconnect to help resolve the delay.</p>
+     *
+     * <ul>
+     *   <li>Key: {@code UUID} - The unique identifier of the player.</li>
+     *   <li>Value: {@code Long} - The time the player was added to the queue, in milliseconds.</li>
+     * </ul>
+     *
+     * <p>This field is immutable and should only be modified within the {@code StorageManager} class to
+     * ensure proper synchronization and functionality.</p>
+     */
     // List of players waiting for previous server to finish uploading inventory
     // If this takes more than 5 seconds, request player to disconnect and reconnect
     private final HashMap<UUID, Long> waitingForInventory = new HashMap<>();
+
+    /**
+     * Represents the backpack item stack used in the player's inventory management system.
+     * <p>
+     * This variable is stored as part of the {@code StorageManager} class and is used to manage
+     * the contents and interactions with a player's backpack. It is immutable once initialized.
+     * </p>
+     * <p>
+     * The {@code backpack} may include player-specific items or storage data crucial for
+     * gameplay functionality. It works in conjunction with other inventory systems
+     * to provide consistent tracking and synchronization.
+     * </p>
+     * <ul>
+     *    <li>Immutable: This ensures thread safety as it cannot be modified after initialization.</li>
+     *    <li>Core component of inventory management: Used in methods handling inventory updates,
+     *        synchronization, and database interaction.</li>
+     * </ul>
+     */
     private final ItemStack backpack;
 
+    /**
+     * Constructs a new instance of the {@code StorageManager} class.
+     * <p>
+     * This constructor initializes the player's backpack based on the current resort specified
+     * in the application. It sets different item properties for the backpack depending on whether
+     * the resort is Walt Disney World (WDW) or not.
+     * <p>
+     * <strong>Key Initialization Behavior:</strong>
+     * <ul>
+     * <li>If the resort is {@code Resort.WDW}, the backpack is initialized as a {@code DIAMOND_HOE}
+     * with a custom name and specific item properties, such as being unbreakable and hiding the unbreakable state.</li>
+     * <li>If the resort is not {@code Resort.WDW}, the backpack is initialized as a {@code CHEST}
+     * with a custom name.</li>
+     * </ul>
+     */
     public StorageManager() {
         if (ParkManager.getResort().equals(Resort.WDW)) {
             backpack = ItemUtil.create(Material.DIAMOND_HOE, ChatColor.GREEN + "Backpack " + ChatColor.GRAY + "(Right-Click)", 47);
@@ -64,6 +181,28 @@ public class StorageManager {
         }
     }
 
+    /**
+     * Initializes the {@code StorageManager} by setting up periodic tasks and message handling mechanisms.
+     *
+     * <p>This method performs the following actions:
+     * <ul>
+     *     <li>Schedules a periodic task to update cached inventories for online players every 60 seconds.</li>
+     *     <li>Schedules another task to process join requests and handle delayed inventory loading issues every 0.5 seconds:
+     *         <ul>
+     *             <li>Processes and clears the {@code joinList} queue, invoking inventory handling for players based on their designated state.</li>
+     *             <li>Monitors {@code waitingForInventory} for players experiencing prolonged inventory loading, notifying affected players and updating their status.</li>
+     *         </ul>
+     *     </li>
+     *     <li>Establishes a message client for asynchronous communication, using a "fanout" exchange named {@code all_parks}:
+     *         <ul>
+     *             <li>Registers a consumer to listen for incoming messages, process them, and trigger {@code IncomingMessageEvent} instances.</li>
+     *             <li>Handles errors during message processing and delivery gracefully.</li>
+     *         </ul>
+     *     </li>
+     * </ul>
+     *
+     * <p>Any exceptions encountered during initialization (e.g., I/O errors or message client setup failures) are caught and logged.
+     */
     public void initialize() {
         Core.runTaskTimer(ParkManager.getInstance(), () -> Core.getPlayerManager().getOnlinePlayers().forEach(this::updateCachedInventory), 0L, 1200L);
         Core.runTaskTimer(ParkManager.getInstance(), () -> {
@@ -126,10 +265,15 @@ public class StorageManager {
     }
 
     /**
-     * Handle inventory setting when a player joins
+     * Handles the process of a player joining the system and manages their inventory state and settings.
+     * <p>
+     * This method checks whether the player's inventory storage lock is handled correctly while transitioning
+     * between server instances. If the player's inventory is ready, it initializes their data and sets up
+     * relevant parameters. Otherwise, it marks the player as waiting for their inventory to be available and
+     * schedules a subsequent check.
      *
-     * @param player    the player
-     * @param buildMode whether the player should join in build mode
+     * @param player The player object representing the individual joining the system.
+     * @param buildMode A flag indicating whether the player is in build mode.
      */
     public void handleJoin(CPlayer player, boolean buildMode) {
         Object o = Core.getMongoHandler().getOnlineDataValue(player.getUniqueId(), "parkStorageLock");
@@ -148,6 +292,15 @@ public class StorageManager {
         }
     }
 
+    /**
+     * Allows a player who joined late to complete the necessary setup for accessing storage.
+     * <p>
+     * This method handles players in a "waiting for inventory" state, updating their records and cache
+     * to ensure they are properly initialized. It adjusts the necessary data in the player's registry
+     * and sets their storage preferences based on previous configurations.
+     *
+     * @param uuid The unique identifier (UUID) of the player who joined late and needs storage setup completion.
+     */
     public void joinLate(UUID uuid) {
         waitingForInventory.remove(uuid);
         CPlayer player = Core.getPlayerManager().getPlayer(uuid);
@@ -160,6 +313,22 @@ public class StorageManager {
         joinList.put(player.getUniqueId(), build);
     }
 
+    /**
+     * Retrieves and constructs a {@code StorageData} object from the database
+     * for the specified user UUID.
+     * <p>
+     * This method interacts with the database to fetch and parse storage-related
+     * data for a given UUID. If no current storage data exists, it attempts to
+     * retrieve legacy data or initializes the storage with default values.
+     *
+     * @param uuid The unique identifier of the user whose storage data is being requested.
+     *             This identifier is used to query the database for storing and retrieving
+     *             the user's storage-related data.
+     *
+     * @return A {@code StorageData} object containing the storage details for the user.
+     *         This object is generated either from existing data in the database or
+     *         from default values if no valid data is found.
+     */
     public StorageData getStorageDataFromDatabase(UUID uuid) {
         Document storage = Core.getMongoHandler().getParkData(uuid, ParkManager.getResort().name().toLowerCase() + "_storage");
 
@@ -180,21 +349,34 @@ public class StorageManager {
     }
 
     /**
-     * Update the player's inventory stored in the database
+     * Updates the cached inventory for a given player. This method simply delegates the task to
+     * {@link #updateCachedInventory(CPlayer, boolean)} with a `disconnect` parameter set to {@code false}.
      *
-     * @param player the player
-     * @see #updateCachedInventory(CPlayer, boolean)
+     * <p>The method ensures that the player's stored inventory data is kept up to date,
+     * ensuring proper synchronization between player state and storage during the application lifecycle.
+     *
+     * @param player The {@link CPlayer} whose cached inventory will be updated. This player must have valid storage
+     *               data associated with their registry for the update to proceed. If the registry does not contain
+     *               storage-related data, the operation will be skipped.
      */
     public void updateCachedInventory(CPlayer player) {
         updateCachedInventory(player, false);
     }
 
     /**
-     * Update the player's inventory stored in the database
+     * Updates the cached inventory for a given player, with optional handling for player disconnection.
+     * <p>
+     * This method is designed to ensure the player's inventory data is synchronized with the backend
+     * system by comparing hash values and determining if an update is required. It also saves data
+     * asynchronously to prevent main-thread blocking. Additionally, it handles special actions
+     * necessary during player disconnection.
+     * </p>
      *
-     * @param player     the player
-     * @param disconnect if this update is being sent because the player just disconnected
-     * @implNote if disconnect is true, typical the 5-minute delay between updates is ignored and the update is sent anyway
+     * @param player    The player whose cached inventory needs to be updated.
+     *                  Must have valid storage data in their registry.
+     * @param disconnect A flag to indicate whether the update is being triggered due to
+     *                   the player's disconnection. If true, specific cleanup and finalization
+     *                   operations will be performed.
      */
     public void updateCachedInventory(CPlayer player, boolean disconnect) {
         if (!player.getRegistry().hasEntry("storageData")) return;
@@ -279,24 +461,33 @@ public class StorageManager {
     }
 
     /**
-     * Update the player's physical inventory depending on their build state
-     * This method makes sure the player's inventory matches what's stored in storageData
+     * Updates the inventory of a given player.
+     * <p>
+     * This method serves as a convenience wrapper to update the player's inventory
+     * without performing a storage check. It internally delegates to {@code updateInventory(player, false)}.
+     * </p>
      *
-     * @param player the player
-     * @see #updateInventory(CPlayer, boolean)
+     * @param player The {@link CPlayer} whose inventory is being updated. Cannot be {@code null}.
      */
     public void updateInventory(CPlayer player) {
         updateInventory(player, false);
     }
 
     /**
-     * Update the player's physical inventory depending on their build state
-     * This method makes sure the player's inventory matches what's stored in storageData
+     * Updates the player's inventory based on their storage data and rank, while also
+     * handling special functionalities like adding items, updating player outfits, and
+     * managing access to restricted actions such as flight.
      *
-     * @param player       the player
-     * @param storageCheck true if it's been verified the player's registry contains an entry for storageData
-     * @implNote Only set storageCheck to true if you're certain the registry has an entry for storageData!
-     * @implNote When player is in build mode, this method does nothing!
+     * <p>This method performs critical inventory management tasks by clearing the current
+     * inventory, repopulating it with rank-specific items, and ensuring the inventory
+     * conforms to the player's storage data and permissions.</p>
+     *
+     * @param player        The {@code CPlayer} whose inventory is being updated.
+     *                      Must have valid storage data in the player's registry if
+     *                      {@code storageCheck} is true.
+     * @param storageCheck  A boolean flag indicating whether the method should check
+     *                      for storage data in the player's registry before proceeding.
+     *                      If {@code false}, the method skips this check.
      */
     public void updateInventory(CPlayer player, boolean storageCheck) {
         long time = System.currentTimeMillis();
@@ -336,10 +527,16 @@ public class StorageManager {
     }
 
     /**
-     * Process a player logging out
-     * Force-update the player's full inventory to the database
+     * Logs out a player by removing them from the inventory waiting list and updating cached inventory data.
      *
-     * @param uuid the uuid
+     * <p>This method performs the following actions:
+     * <ul>
+     *   <li>Removes the player identified by the unique identifier from the {@code waitingForInventory} queue.</li>
+     *   <li>Retrieves the player's session using the player manager. If the player does not exist, the method exits.</li>
+     *   <li>Updates the player's cached inventory and handles inventory persistence as necessary.</li>
+     * </ul>
+     *
+     * @param uuid The unique identifier of the player being logged out.
      */
     public void logout(UUID uuid) {
         waitingForInventory.remove(uuid);
@@ -349,9 +546,14 @@ public class StorageManager {
     }
 
     /**
-     * Remove banned items from an array
+     * Filters an array of {@link ItemStack} objects by removing items that are banned.
+     * <p>
+     * This method iterates through the provided array of {@link ItemStack} objects and sets
+     * any element to {@code null} if its type is included in the list of banned items.
+     * </p>
      *
-     * @param items an array of items
+     * @param items an array of {@link ItemStack} objects to be filtered. Items that match
+     *              the banned criteria will be removed (set to {@code null}).
      */
     public static void filterItems(ItemStack[] items) {
         for (int i = 0; i < items.length; i++) {
@@ -362,11 +564,21 @@ public class StorageManager {
     }
 
     /**
-     * Fill an inventory with the provided items, up to the StorageSize limit
+     * Fills the provided {@link Inventory} with the given {@code ItemStack} array, adjusting the contents
+     * to match the size of the specified {@link StorageSize}.
+     * <p>
+     * If the number of items in the {@code items} array matches the total slots provided by the {@link StorageSize},
+     * the method will directly set all contents. If the sizes don't match, the method will copy as many items
+     * as possible into a new {@code ItemStack} array that matches the {@link StorageSize}'s slot count and then
+     * set the resulting array as the inventory contents. Empty slots will remain unfilled.
+     * </p>
      *
-     * @param inventory the inventory
-     * @param size      the inventory's StorageSize
-     * @param items     the items
+     * @param inventory the {@link Inventory} to be filled
+     * @param size      the {@link StorageSize} that defines the storage capacity
+     *                  and the number of slots in the {@code inventory}
+     * @param items     the array of {@link ItemStack} objects to populate into the {@code inventory}.
+     *                  If fewer items than the available slots are provided, the remaining slots
+     *                  will be left empty.
      */
     public static void fillInventory(Inventory inventory, StorageSize size, ItemStack[] items) {
         if (items.length == size.getSlots()) {
@@ -380,6 +592,16 @@ public class StorageManager {
         }
     }
 
+    /**
+     * Handles the purchase of a storage upgrade, either for a backpack or a locker, based on the specified material type.
+     * Presents the player with a confirmation menu to proceed with the upgrade.
+     *
+     * <p>The upgrade increases the storage size from 3 rows to 6 rows and deducts the cost from the player's balance.
+     * If the player does not have sufficient balance, the transaction is canceled.</p>
+     *
+     * @param player The player attempting to purchase the storage upgrade.
+     * @param type   The type of material representing the upgrade (either a backpack or a locker).
+     */
     public void buyUpgrade(CPlayer player, Material type) {
         boolean backpack = type.equals(Material.CHEST);
         if (!backpack && !type.equals(Material.ENDER_CHEST)) return;
@@ -443,15 +665,19 @@ public class StorageManager {
     }
 
     /**
-     * Create an UpdateData object based on the provided inventory JSON
+     * Converts JSON strings representing inventory data into an {@link UpdateData} object.
+     * This method takes JSON strings for various inventory sections, parses them into BSON arrays,
+     * and packages them with their respective sizes into an {@link UpdateData} object for further processing.
      *
-     * @param backpackJSON the backpack JSON
-     * @param backpackSize the backpack size
-     * @param lockerJSON   the locker JSON
-     * @param lockerSize   the locker size
-     * @param baseJSON     the base JSON
-     * @param buildJSON    the build JSON
-     * @return an UpdateData object based on the provided inventory JSON
+     * @param backpackJSON The JSON string representing the contents of the backpack inventory.
+     * @param backpackSize The size (capacity) of the backpack inventory.
+     * @param lockerJSON The JSON string representing the contents of the locker inventory.
+     * @param lockerSize The size (capacity) of the locker inventory.
+     * @param baseJSON The JSON string representing the base inventory contents.
+     * @param buildJSON The JSON string representing the build inventory contents.
+     *
+     * @return An {@link UpdateData} object encapsulating parsed inventory data (as BSON arrays)
+     *         along with their respective sizes.
      */
     public static UpdateData getDataFromJson(String backpackJSON, int backpackSize, String lockerJSON, int lockerSize, String baseJSON, String buildJSON) {
         BsonArray pack = jsonToArray(backpackJSON);
@@ -463,10 +689,21 @@ public class StorageManager {
     }
 
     /**
-     * Create a BsonArray from the provided JSON string
+     * Converts a JSON string representation of an array into a {@link BsonArray}.
+     * <p>
+     * This method parses the input JSON string, expecting it to represent a JSON array.
+     * Each element in the JSON array is converted into a {@link BsonDocument} and added
+     * to the resulting {@link BsonArray}.
+     * </p>
      *
-     * @param json the JSON string
-     * @return the BsonArray
+     * @param json A JSON string representing an array. This string must be properly formatted
+     *             as a JSON array, otherwise the output will be an empty {@link BsonArray}.
+     *             If the input string is {@code null} or empty, an empty {@link BsonArray}
+     *             will be returned.
+     *
+     * @return A {@link BsonArray} containing the elements parsed from the input JSON array.
+     *         If the input is {@code null}, empty, or not a valid JSON array, an empty
+     *         {@link BsonArray} will be returned.
      */
     public static BsonArray jsonToArray(String json) {
         BsonArray array = new BsonArray();
@@ -486,6 +723,22 @@ public class StorageManager {
         return array;
     }
 
+    /**
+     * The {@code UpdateData} class is a container for data used in updating or
+     * processing operations involving BSON arrays. It holds multiple collections
+     * of BSON data and their associated size attributes.
+     *
+     * <p>This class includes:
+     * <ul>
+     *   <li>Pack: A BSON array used for packing operations and its size.</li>
+     *   <li>Locker: A BSON array potentially used for locking mechanisms and its size.</li>
+     *   <li>Base: A BSON array representing the base data set.</li>
+     *   <li>Build: A BSON array representing the build or related operational set.</li>
+     * </ul>
+     *
+     * <p>Instances of this class are immutable and constructed with all components
+     * explicitly initialized, ensuring consistency and thread safety.
+     */
     @Getter
     @AllArgsConstructor
     public static class UpdateData {

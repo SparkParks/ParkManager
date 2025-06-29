@@ -18,6 +18,22 @@ import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.HashMap;
 
+/**
+ * Utility class for managing files and directories related to subsystems within a plugin directory.
+ * <p>
+ * This class facilitates the creation, registration, and management of subsystems,
+ * each represented by a unique directory under the main plugin directory, as well as
+ * utility methods for handling JSON files stored within these directories.
+ * </p>
+ *
+ * <p><strong>Key Features:</strong></p>
+ * <ul>
+ *     <li>Automatic creation of a root plugin directory if it does not exist.</li>
+ *     <li>Support for registering subsystems, each corresponding to a unique directory.</li>
+ *     <li>Methods for accessing, creating, and working with files inside subsystem directories.</li>
+ *     <li>Convenient handling of JSON data within subsystem files.</li>
+ * </ul>
+ */
 public class FileUtil {
     public static final String mainPath = "plugins/ParkManager";
     private HashMap<String, FileSubsystem> subsystems = new HashMap<>();
@@ -68,6 +84,22 @@ public class FileUtil {
         return subsystems.containsKey(name);
     }
 
+    /**
+     * The {@code FileSubsystem} class represents a subsystem directory within the file structure.
+     * It provides functionality to work with JSON files within this directory, including reading,
+     * writing, and file creation. This class is designed to be extended or instantiated for specific
+     * file organization purposes.
+     *
+     * <p>Key Features:
+     * <ul>
+     *     <li>Ability to define a specific directory for the subsystem.</li>
+     *     <li>Automatic creation of files if they do not exist.</li>
+     *     <li>Reading and parsing the contents of JSON files.</li>
+     *     <li>Writing JSON content to files within the subsystem.</li>
+     * </ul>
+     * <p><strong>Note:</strong> The {@code mainPath} variable must be defined within the containing
+     * context to determine the base directory.
+     */
     public static class FileSubsystem {
         private String name;
 
